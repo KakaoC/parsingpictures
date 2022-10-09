@@ -36,7 +36,7 @@ def download(list, rr, limit):
         f.close()
         bar.next()
         numb += 1
-        time.sleep(1)
+        time.sleep(2)
 
 def bay_horse(limit):
     global second_list_of_src
@@ -61,7 +61,7 @@ def bay_horse(limit):
             second_list_of_src.append(link['src'])
             bar.next()
             time.sleep(0.1)
-        time.sleep(2)
+        time.sleep(5)
 
 
 def zebra(limit):
@@ -79,7 +79,7 @@ def zebra(limit):
         first_soup = BeautifulSoup(first_response.content, 'lxml')
 
         r = first_soup.find_all('img', class_= 'serp-item__thumb')
-
+        # print(first_soup) // тест
         for link in r:
             if len(first_list_of_src) >= limit:
                 bar.finish()
