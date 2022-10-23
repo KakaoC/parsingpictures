@@ -9,88 +9,86 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.148 YaBrowser/22.7.2.899 Yowser/2.5 Safari/537.36"
 }
 
-first_list_of_src = []
-second_list_of_src = []
-
-def download(list, rr, limit):
+def download(url, rr, numb):
     global headers
-    numb = 1000
     path = ''
-    os.system('cls')
-    if rr == '2':
+    if rr == 2:
         path = os.getcwd() + '\\' + 'dataset' + '\\' + 'download_data' + '\\' + 'bay horse'
-        print('Bay horse download:')
-    if rr == '1':
+    if rr == 1:
         path = os.getcwd() + '\\' + 'dataset' + '\\' + 'download_data' + '\\' + 'zebra'
-        print('Zebra download:')
-    bar = IncrementalBar('Progress', max = limit)
-    for p in list:
-        r = requests.get('https:' + p, headers = headers)
-        if numb < 2000:
-            num = str(numb)[1:4]
-            num = '0' + num
-        else:
-            num = str(numb - 1000)
-        f = open(path + '\\' + num + '.jpg', 'wb')
-        f.write(r.content)
-        f.close()
-        bar.next()
-        numb += 1
-        time.sleep(2)
+    r = requests.get('https:' + url, headers = headers)
+    if numb < 2000:
+        num = str(numb)[1:4]
+        num = '0' + num
+    else:
+        num = str(numb - 1000)
+    f = open(path + '\\' + num + '.jpg', 'wb')
+    f.write(r.content)
+    f.close()
+    time.sleep(1)
 
 def bay_horse(limit):
-    global second_list_of_src
     num_page = 0
-    print("Getting links of bay horse:")
+    print("Downloading bay horse:")
     bar = IncrementalBar('Progress', max= limit)
+    numb = 1000
+    f = 1
 
     while True:
         second_url = f"https://yandex.ru/images/search?p={num_page}&from=tabbar&text=bay%20horse&lr=51&rpt=image&uinfo=sw-1920-sh-1080-ww-1220-wh-970-pd-1-wp-16x9_1920x1080"
         num_page += 1
 
+        second_list_of_src = []
         second_response = requests.get(second_url, headers=headers)
         second_soup = BeautifulSoup(second_response.content, 'lxml')
         r = second_soup.find_all('img', class_= 'serp-item__thumb')
 
         for link in r:
             if len(second_list_of_src) >= limit:
-                bar.finish()
-                os.system('cls')
-                download(second_list_of_src, str(2), limit)
-                return
+                f = 2
+                break
             second_list_of_src.append(link['src'])
-            bar.next()
-            time.sleep(0.1)
-        time.sleep(5)
 
+        for p in second_list_of_src:
+            download(p, 2, numb)
+            numb += 1
+            bar.next()
+
+        if f == 2:
+            bar.finish()
+        time.sleep(3)
 
 def zebra(limit):
-    global first_list_of_src
     num_page = 0
-    print("Getting links of zebra:")
+    print("Downloading zebra:")
     bar = IncrementalBar('Progress', max= limit)
-
+    numb = 1000
+    f = 1
 
     while True:
         first_url = f"https://yandex.ru/images/search?p={num_page}&text=zebra&uinfo=sw-1536-sh-864-ww-760-wh-754-pd-1.25-wp-16x9_1920x1080&lr=51&rpt=image"
         num_page += 1
 
+        first_list_of_src = []
         first_response = requests.get(first_url, headers=headers)
         first_soup = BeautifulSoup(first_response.content, 'lxml')
 
         r = first_soup.find_all('img', class_= 'serp-item__thumb')
-        # print(first_soup) // тест
+
         for link in r:
             if len(first_list_of_src) >= limit:
-                bar.finish()
-                os.system('cls')
-                bay_horse(limit)
-                download(first_list_of_src, str(1), limit)
-                return
+                f = 2
+                break
             first_list_of_src.append(link['src'])
+
+        for p in first_list_of_src:
+            download(p, 1, numb)
+            numb += 1
             bar.next()
-            time.sleep(0.1)
-        time.sleep(2)
+
+        if f == 2:
+            bar.finish()
+        time.sleep(3)
 
 if __name__ == "__main__":
     print('Enter the limit of uploaded images:')
@@ -122,5 +120,7 @@ if __name__ == "__main__":
 
     os.system('cls')
     zebra(int(limit1))
+    os.system('cls')
+    bay_horse(int(limit1))
     os.system('cls')
     print("Finished")
